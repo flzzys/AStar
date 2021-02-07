@@ -2,26 +2,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GameManager : MonoBehaviour
-{
+public class GameManager : MonoBehaviour {
     AStar aStar;
     Grid grid;
 
-    private void Awake()
-    {
+    private void Awake() {
         aStar = GetComponent<AStar>();
         grid = GetComponent<Grid>();
     }
 
-    void Start()
-    {
-        
-    }
-
-    void Update()
-    {
-        if(Input.GetMouseButtonDown(0))
-        {
+    void Update() {
+        if (Input.GetMouseButtonDown(0)) {
             Vector2 mousePos = Input.mousePosition;
             Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(mousePos);
 
