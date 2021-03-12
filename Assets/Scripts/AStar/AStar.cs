@@ -1,24 +1,33 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class AStar : MonoBehaviour {
-    Grid grid;
+    public Grid grid;
 
-    private void Awake() {
-        grid = GetComponent<Grid>();
+    /// <summary>
+    /// 寻路，返回路径或者空
+    /// </summary>
+    /// <param name="startNode"></param>
+    /// <param name="endNode"></param>
+    /// <param name="onComplete"></param>
+    public void FindPath(Node startNode, Node endNode, Action<List<Node>> onComplete) {
+        StartCoroutine(FindPathCor(startNode, endNode, onComplete));
     }
-
-    //寻路，返回路径或者空
-    public List<Node> FindPath(Node startNode, Node endNode) {
+    IEnumerator FindPathCor(Node startNode, Node endNode, Action<List<Node>> onComplete) {
+        //开始计时
         var timer = new System.Diagnostics.Stopwatch();
         timer.Start();
 
+        //开集和闭集
         Heap<Node> openList = new Heap<Node>(grid.maxSize);
         HashSet<Node> closeList = new HashSet<Node>();
 
+        //添加初始节点
         openList.Add(startNode);
 
+        //遍历开集节点
         while (openList.Count > 0) {
             //取出消耗最低的节点
             Node node = openList.RemoveFirst();
@@ -28,22 +37,28 @@ public class AStar : MonoBehaviour {
             if (node == endNode) {
                 //生成路径然后返回
                 List<Node> path = new List<Node>();
-                while (node.parentNode != null) {
+                while (node != startNode) {
                     path.Add(node);
 
                     node = node.parentNode;
                 }
 
+                path.Add(startNode);
+
                 path.Reverse();
 
+                //停止计时
                 timer.Stop();
                 Debug.Log(timer.ElapsedMilliseconds.ToString() + "ms");
 
-                return path;
+                onComplete?.Invoke(path);
+
+                yield break;
             }
 
             //获取周围一圈的节点，计算g消耗，加入开集
             foreach (var item in GetNeighbourNodes(node)) {
+                //在闭集中或者不可通行，跳过
                 if (closeList.Contains(item) || !item.walkable)
                     continue;
 
@@ -60,7 +75,7 @@ public class AStar : MonoBehaviour {
             }
         }
 
-        return null;
+        onComplete?.Invoke(null);
     }
 
     //估算节点间距离
@@ -88,7 +103,7 @@ public class AStar : MonoBehaviour {
                 int x = node.x + i;
                 int y = node.y + j;
                 if (x >= 0 && x < grid.mapSize.x && y >= 0 && y < grid.mapSize.y) {
-                    nodeList.Add(grid.nodes[x, y]);
+                    nodeList.Add(grid.GetNode(x, y));
                 }
             }
         }

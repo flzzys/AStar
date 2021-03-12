@@ -6,38 +6,37 @@ public class GameManager : MonoBehaviour {
     AStar aStar;
     Grid grid;
 
+    Node currentNode;
+
     private void Awake() {
         aStar = GetComponent<AStar>();
         grid = GetComponent<Grid>();
     }
 
+    private void Start() {
+        currentNode = grid.GetNode(0, 0);
+    }
+
     void Update() {
         if (Input.GetMouseButtonDown(0)) {
-            Vector2 mousePos = Input.mousePosition;
-            Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(mousePos);
+            Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
             Node node = grid.GetNodeFromWorldPos(mouseWorldPos);
 
-            grid.path = aStar.FindPath(grid.nodes[0, 0], node);
+            aStar.FindPath(currentNode, node, path => {
+                grid.path = path;
+
+                if(path == null) {
+                    print("无路径");
+                } 
+            });
         }
 
-        //if (Input.GetKeyDown("d"))
-        //{
-        //    //FindPath(nodes[0], nodes[499]);
+        if (Input.GetMouseButtonDown(1)) {
+            Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
-        //    foreach (var item in aStar.FindPath(nodes[0], nodes[499]))
-        //    {
-        //        item.GetComponent<SpriteRenderer>().color = Color.green;
-        //    }
-        //}
-
-        //if (Input.GetKeyDown("f"))
-        //{
-        //    foreach (var item in FindPath(nodes[0], nodes[nodes.Length - 1]))
-        //    {
-        //        item.GetComponent<SpriteRenderer>().color = Color.green;
-        //    }
-        //}
+            Node node = grid.GetNodeFromWorldPos(mouseWorldPos);
+            currentNode = node;
+        }
     }
-
 }

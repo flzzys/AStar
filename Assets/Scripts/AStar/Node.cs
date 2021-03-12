@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Node : IHeapItem<Node> {
+	//消耗
 	public float g, h;
 	public float f { get { return g + h; } }
 
-	public Node parentNode;
-
+	//坐标
 	public int x, y;
+
+	//父级节点
+	public Node parentNode;
 
 	public bool walkable = true;
 
